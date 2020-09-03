@@ -1,15 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://quqinyuni.github.io/</id>
-    <title>Gridea</title>
-    <updated>2020-09-03T04:10:01.358Z</updated>
+    <title>test</title>
+    <updated>2020-09-03T08:18:24.322Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://quqinyuni.github.io/"/>
     <link rel="self" href="https://quqinyuni.github.io/atom.xml"/>
     <subtitle>温故而知新</subtitle>
     <logo>https://quqinyuni.github.io/images/avatar.png</logo>
     <icon>https://quqinyuni.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2020, Gridea</rights>
+    <rights>All rights reserved 2020, test</rights>
+    <entry>
+        <title type="html"><![CDATA[python-scrapy学习记录]]></title>
+        <id>https://quqinyuni.github.io/post/python-scrapy-xue-xi-ji-lu/</id>
+        <link href="https://quqinyuni.github.io/post/python-scrapy-xue-xi-ji-lu/">
+        </link>
+        <updated>2020-09-03T04:10:28.000Z</updated>
+        <summary type="html"><![CDATA[<p>scrapy 是 python 的一个爬虫框架，便于快速建立一个爬虫项目。<br>
+scrapy 的安装及配置网上教程一大把，在此不做赘述，此文的主要目的是记录所遇到的坑。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>scrapy 是 python 的一个爬虫框架，便于快速建立一个爬虫项目。<br>
+scrapy 的安装及配置网上教程一大把，在此不做赘述，此文的主要目的是记录所遇到的坑。</p>
+<!-- more -->
+<p><code>字 数：437,阅读时间:1m 46s</code></p>
+<p>1、爬虫速度</p>
+<p>​	关于这个，settings.py 内有几个参数可以控制</p>
+<ul>
+<li>CONCURRENT_REQUESTS_PER_DOMAIN</li>
+<li>CONCURRENT_REQUESTS</li>
+<li>CONCURRENT_ITEMS</li>
+<li>COOKIES_ENABLED</li>
+<li>DOWNLOAD_TIMEOUT</li>
+</ul>
+<p>参数具体描述，请见官方文档。</p>
+<p>2、关于分布式爬虫部署</p>
+<p>​	scrapy 由于调度中心的数据，在各线程之间是不共享的，因此其本身是不支持分布式部署的。</p>
+<p>​	在学习过程中，发现了 scrapy-redis。</p>
+<p>​	scrapy-redis修改了 scrapy 的调度中心，将数据存放于 redis 内，多个爬虫从 redis 内去获取数据进行调度，协同处理。</p>
+<p>​	1、安装</p>
+<p>​	<code>pip install scrapy-redis</code></p>
+<p>​	服务器安装 redis，修改配置文件开放允许连接的地址为：0.0.0.0:6379，并且设置一个连接密码，不然相当于在大街上裸奔。</p>
+<p>​	设置完毕后，测试下能否连接。</p>
+<p>​	2、setting.py配置</p>
+<p>​	settins.py 内添加如下内容：</p>
+<pre><code>REDIS_HOST = 'host'
+REDIS_PORT = 6379
+REDIS_ENCODING = 'utf-8'
+# REDIS_PARAMS = {'password':'pwd'}
+# #使用scrapy-redis组件的去重队列（过滤）
+DUPEFILTER_CLASS = &quot;scrapy_redis.dupefilter.RFPDupeFilter&quot;
+# #使用scrapy-redis组件自己的调度器(核心代码共享调度器)
+SCHEDULER = &quot;scrapy_redis.scheduler.Scheduler&quot;
+##是否允许暂停
+SCHEDULER_PERSIST = True
+ITEM_PIPELINES = {
+   'scrapy_redis.pipelines.RedisPipeline': 401,#储存到 redis，如果有自己的，不启用也可
+   以
+}
+</code></pre>
+<p>​	3.具体项目的配置</p>
+<pre><code class="language-python1">from scrapy_redis.spiders import RedisSpider
+class LianghaoGetUrlsSpider(RedisSpider):
+    name = 'testName'
+	redis_key = “testName:start_urls” #这个是 redis 的 key 名，存储了开始连接
+    allowed_domains = ['test.com']
+
+    def parse(self, response):
+        pass
+</code></pre>
+<p>​	4.运行项目</p>
+<p>​	进入 redis，</p>
+<p>​	<code>rpush testName:start_urls http://www.test.com</code></p>
+<p>3、可视化</p>
+<p>​	网上教程一把，自己找吧。<br>
+​	用到的库：</p>
+<pre><code>scrapy
+scrapy-redis
+pymysql
+redis
+gerapy
+scrapyd
+</code></pre>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Hello Gridea]]></title>
         <id>https://quqinyuni.github.io/post/hello-gridea/</id>
